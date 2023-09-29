@@ -1,3 +1,4 @@
+const { TimelineService } = require("wdio-timeline-reporter/timeline-service");
 exports.config = {
     // ====================
     // wdi5 Configuration
@@ -68,12 +69,15 @@ exports.config = {
             //
             browserName: "chrome",
             "goog:chromeOptions": {
-                args:
+                args: [
                     process.argv.indexOf("--headless") > -1
                         ? ["--headless"]
                         : process.argv.indexOf("--debug") > -1
                         ? ["window-size=1440,800", "--auto-open-devtools-for-tabs"]
-                        : ["window-size=1440,800"]
+                        : ["window-size=1440,800"],
+                        "--no-sandbox", "--disable-dev-shm-usage"
+                ]
+
             },
             acceptInsecureCerts: true
             // If outputDir is provided WebdriverIO can capture driver session logs
@@ -130,7 +134,7 @@ exports.config = {
     // Services take over a specific job you don't want to take care of. They enhance
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
-    services: ["ui5"],
+    services: ["ui5", [TimelineService]],
 
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
@@ -152,7 +156,14 @@ exports.config = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter
-    reporters: ["spec"],
+    reporters: ["spec",[
+        "timeline",
+        {
+            outputDir: "target",
+            embedImages: true,
+            screenshotStrategy: "before:click",
+        },
+        ]],
 
     //
     // Options to be passed to Mocha.
